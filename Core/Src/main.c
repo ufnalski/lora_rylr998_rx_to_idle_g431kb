@@ -56,6 +56,7 @@ typedef union
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+#define USE_NANO_SPECS  // CubeIDE -> Project -> Properties -> C/C++ Build -> Settings -> MCU/MPU Settings -> Runtime library -> Reduced C (--specs=nano.specs)
 #define LORA_RX_BUFFER_SIZE 128
 
 /* USER CODE END PD */
@@ -155,10 +156,9 @@ int main(void)
 		if (lora_data_received_flag == 1)
 		{
 			lora_data_received_flag = 0;
+			printf((char*) rxData);
 			if (strncmp((char*) rxData, "+RCV=", 5) == 0)
 			{
-				printf((char*) rxData);
-//				printf("\r\n");
 				HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 
 				memcpy(rxDataBis, rxData, lora_data_received_size);
@@ -244,7 +244,9 @@ void lora_msg_parser(void)
 	while (pt != NULL)
 	{
 		int a = atoi(pt);
+#ifdef USE_NANO_SPECS
 		unsigned int b;
+#endif
 		switch (cnt)
 		{
 		case 0:
@@ -256,8 +258,22 @@ void lora_msg_parser(void)
 		case 2:
 			for (uint8_t i = 0; i < LORA_PAYLOAD_SIZE; i++)
 			{
-				sscanf(pt + 2 * i, "%02X", &b);
-				payload_to_bytes.bytes[i] = b;
+#ifdef USE_NANO_SPECS
+				if (sscanf(pt + 2 * i, "%02X", &b) == 1)
+				{
+					payload_to_bytes.bytes[i] = b;
+				}
+				else
+				{
+					printf("Something went wrong with sscanf()!");
+				}
+#else
+				if (sscanf(pt + 2 * i, "%2hhX", payload_to_bytes.bytes + i)
+						!= 1)
+				{
+					printf("Something went wrong with sscanf()!");
+				}
+#endif
 			}
 			printf("AHRS x: %.1f deg\r\n", payload_to_bytes.ahrs_x);
 			printf("AHRS y: %.1f deg\r\n", payload_to_bytes.ahrs_y);

@@ -56,7 +56,7 @@ typedef union
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define USE_NANO_SPECS  // CubeIDE -> Project -> Properties -> C/C++ Build -> Settings -> MCU/MPU Settings -> Runtime library -> Reduced C (--specs=nano.specs)
+//#define USE_NANO_SPECS  // CubeIDE -> Project -> Properties -> C/C++ Build -> Settings -> MCU/MPU Settings -> Runtime library -> Reduced C (--specs=nano.specs)
 #define LORA_RX_BUFFER_SIZE 128
 
 /* USER CODE END PD */
@@ -265,13 +265,13 @@ void lora_msg_parser(void)
 				}
 				else
 				{
-					printf("Something went wrong with sscanf()!");
+					printf("Something went wrong with sscanf()!\r\n");
 				}
 #else
 				if (sscanf(pt + 2 * i, "%2hhX", payload_to_bytes.bytes + i)
 						!= 1)
 				{
-					printf("Something went wrong with sscanf()!");
+					printf("Something went wrong with sscanf()!\r\n");
 				}
 #endif
 			}
